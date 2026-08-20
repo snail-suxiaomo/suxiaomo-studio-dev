@@ -20,6 +20,10 @@ frontend/node_modules/
 frontend/dist/
 frontend/dist2.bak/
 frontend/dist3.bak/
+frontend/dist*/
+frontend/test/dist*/
+*.timestamp-*.mjs
+build_tmp.mjs
 
 # 打包产物
 release/
