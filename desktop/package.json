@@ -1,0 +1,58 @@
+{
+  "name": "suxiaomo-studio-desktop",
+  "version": "0.0.12",
+  "private": true,
+  "description": "suxiaomo-studio 桌面启动器（Electron 壳，加载既有前后端）",
+  "main": "main.js",
+  "scripts": {
+    "start": "chcp 65001 >nul && electron .",
+    "dist": "electron-builder"
+  },
+  "devDependencies": {
+    "electron": "^31.0.0",
+    "electron-builder": "^26.15.3"
+  },
+  "build": {
+    "appId": "com.suxiaomo.studio",
+    "productName": "苏小沫工作台",
+    "electronDist": "node_modules/electron/dist",
+    "electronVersion": "31.7.7",
+    "files": [
+      "main.js",
+      "loading.html",
+      "loading-preload.js",
+      "preload.js"
+    ],
+    "extraResources": [
+      {
+        "from": "../backend",
+        "to": "backend",
+        "filter": [
+          "**/*",
+          "!data/**",
+          "!projects/**",
+          "!venv/**",
+          "!runtime-venv/**",
+          "!logs/**",
+          "!**/__pycache__/**",
+          "!**/*.pyc",
+          "!**/*.tar.gz",
+          "!**/*.zip",
+          "!**/wsdump*"
+        ]
+      },
+      {
+        "from": "../frontend/dist",
+        "to": "frontend-dist"
+      }
+    ],
+    "directories": {
+      "output": "../../suxiaomo-studio-release"
+    },
+    "win": {
+      "target": "dir",
+      "signExecutable": false,
+      "icon": "build/icon.ico"
+    }
+  }
+}

@@ -1,0 +1,592 @@
+{
+  "groups": [
+    "漫剧创作",
+    "工具箱",
+    "AI工具",
+    "设置与帮助"
+  ],
+  "features": {
+    "prompt_library": {
+      "label": "提示词库",
+      "group": "漫剧创作",
+      "route": "/prompt-library",
+      "component": "prompt_library/PromptLibrary.vue",
+      "emoji": "📚",
+      "dev": false,
+      "checklist": true,
+      "core": false,
+      "parent": null,
+      "dependsOn": [],
+      "backend": {
+        "module": "prompt_library",
+        "routerAttr": "router",
+        "extraRouters": [],
+        "service": null,
+        "startup": null
+      }
+    },
+    "novel_create": {
+      "label": "小说创作",
+      "group": "漫剧创作",
+      "route": "/novel-create",
+      "component": "common/DevPlaceholder.vue",
+      "props": {
+        "tip": "小说创作功能正在筹备中，敬请期待"
+      },
+      "emoji": "✍️",
+      "dev": true,
+      "checklist": true,
+      "core": false,
+      "parent": null,
+      "dependsOn": [],
+      "backend": null
+    },
+    "script_create": {
+      "label": "剧本创作",
+      "group": "漫剧创作",
+      "route": "/script-create",
+      "component": "common/DevPlaceholder.vue",
+      "props": {
+        "tip": "剧本创作功能正在筹备中，敬请期待"
+      },
+      "emoji": "🎬",
+      "dev": true,
+      "checklist": true,
+      "core": false,
+      "parent": null,
+      "dependsOn": [],
+      "backend": null
+    },
+    "viral_collection": {
+      "label": "爆款收集",
+      "group": "漫剧创作",
+      "route": "/viral-collection",
+      "component": "viral_collection/ViralCollection.vue",
+      "emoji": "⚡",
+      "dev": false,
+      "checklist": true,
+      "core": false,
+      "parent": null,
+      "dependsOn": [],
+      "backend": {
+        "module": "viral_collection",
+        "routerAttr": "router",
+        "extraRouters": [],
+        "service": null,
+        "startup": null
+      }
+    },
+    "novel_project": {
+      "label": "小说改写",
+      "group": "漫剧创作",
+      "route": "/novel_project",
+      "component": "novel_project/ProjectList.vue",
+      "emoji": "📋",
+      "dev": true,
+      "checklist": true,
+      "core": false,
+      "parent": null,
+      "dependsOn": [],
+      "backend": {
+        "module": "novel_project",
+        "routerAttr": "router",
+        "extraRouters": [],
+        "service": null,
+        "startup": null
+      }
+    },
+    "manju_generate": {
+      "label": "漫剧生产",
+      "group": "漫剧创作",
+      "route": "/manju-generate",
+      "component": "manju_generate/ManJuGenerate.vue",
+      "emoji": "🎥",
+      "dev": false,
+      "checklist": true,
+      "core": false,
+      "parent": null,
+      "dependsOn": [],
+      "backend": {
+        "module": "manju_generate",
+        "routerAttr": "router",
+        "extraRouters": [],
+        "service": null,
+        "startup": null
+      }
+    },
+    "free_resources": {
+      "label": "羊毛管理",
+      "group": "漫剧创作",
+      "route": "/free-resources",
+      "component": "free_resources/FreeResources.vue",
+      "emoji": "🧰",
+      "dev": false,
+      "checklist": true,
+      "core": false,
+      "parent": null,
+      "dependsOn": [],
+      "backend": {
+        "module": "free_resources",
+        "routerAttr": "router",
+        "extraRouters": [],
+        "service": null,
+        "startup": null
+      }
+    },
+    "novel_tweet": {
+      "label": "推文助手",
+      "group": "漫剧创作",
+      "route": "/novel-tweet",
+      "component": "novel_tweet/NovelTweet.vue",
+      "emoji": "📝",
+      "dev": false,
+      "checklist": true,
+      "core": false,
+      "parent": null,
+      "dependsOn": [],
+      "backend": {
+        "module": "novel_tweet",
+        "routerAttr": "router",
+        "extraRouters": [],
+        "service": null,
+        "startup": null
+      }
+    },
+    "daily_tasks": {
+      "label": "每日任务",
+      "group": "工具箱",
+      "route": "/daily-tasks",
+      "component": "daily_tasks/DailyTasks.vue",
+      "emoji": "📋",
+      "dev": false,
+      "checklist": true,
+      "core": false,
+      "parent": null,
+      "dependsOn": [],
+      "backend": {
+        "module": "daily_tasks",
+        "routerAttr": "router",
+        "extraRouters": [],
+        "service": null,
+        "startup": null
+      }
+    },
+    "filespace": {
+      "label": "文件管理",
+      "group": "工具箱",
+      "route": "/filespace",
+      "component": "filespace/FileSpace.vue",
+      "emoji": "📁",
+      "dev": false,
+      "checklist": true,
+      "core": false,
+      "parent": null,
+      "dependsOn": [],
+      "backend": {
+        "module": "filespace",
+        "routerAttr": "router",
+        "extraRouters": [],
+        "service": "filespace",
+        "startup": "migrate_cover_paths"
+      }
+    },
+    "apps_launcher": {
+      "label": "应用中心",
+      "group": "工具箱",
+      "route": "/apps-launcher",
+      "component": "apps-launcher/AppLauncher.vue",
+      "emoji": "🧩",
+      "dev": false,
+      "checklist": true,
+      "core": false,
+      "parent": null,
+      "dependsOn": [],
+      "backend": {
+        "module": "apps_launcher",
+        "routerAttr": "router",
+        "extraRouters": [],
+        "service": null,
+        "startup": null
+      }
+    },
+    "web_nav": {
+      "label": "网址导航",
+      "group": "工具箱",
+      "route": "/web-nav",
+      "component": "web_nav/WebNav.vue",
+      "emoji": "🌐",
+      "dev": false,
+      "checklist": true,
+      "core": false,
+      "parent": null,
+      "dependsOn": [],
+      "backend": {
+        "module": "web_nav",
+        "routerAttr": "router",
+        "extraRouters": [],
+        "service": null,
+        "startup": null
+      }
+    },
+    "social_accounts": {
+      "label": "账号矩阵",
+      "group": "工具箱",
+      "route": "/social-accounts",
+      "component": "social_account/SocialAccount.vue",
+      "emoji": "👤",
+      "dev": false,
+      "checklist": true,
+      "core": false,
+      "parent": null,
+      "dependsOn": [],
+      "backend": {
+        "module": "social_account",
+        "routerAttr": "router",
+        "extraRouters": [],
+        "service": null,
+        "startup": null
+      }
+    },
+    "chat": {
+      "label": "AI助手",
+      "sort_order": 4,
+      "group": "AI工具",
+      "route": "/chat",
+      "component": "chat/Chat.vue",
+      "emoji": "💬",
+      "dev": false,
+      "checklist": true,
+      "core": false,
+      "parent": null,
+      "dependsOn": [
+        "model_config"
+      ],
+      "backend": {
+        "module": "chat",
+        "routerAttr": "router",
+        "extraRouters": [],
+        "service": null,
+        "startup": null
+      }
+    },
+    "key_vault": {
+      "label": "AI密钥库",
+      "sort_order": 1,
+      "group": "AI工具",
+      "route": "/key-vault",
+      "component": "key_vault/KeyVault.vue",
+      "emoji": "🔑",
+      "dev": false,
+      "checklist": true,
+      "core": false,
+      "parent": null,
+      "dependsOn": [],
+      "backend": {
+        "module": "key_vault",
+        "routerAttr": "router",
+        "extraRouters": [],
+        "service": null,
+        "startup": null
+      }
+    },
+    "model_config": {
+      "label": "AI模型配置",
+      "sort_order": 2,
+      "group": "AI工具",
+      "route": "/model_config",
+      "component": "model_config/ModelConfig.vue",
+      "emoji": "⚙️",
+      "dev": false,
+      "checklist": true,
+      "core": false,
+      "parent": null,
+      "dependsOn": [],
+      "backend": {
+        "module": "model_config",
+        "routerAttr": "router",
+        "extraRouters": [
+          "media_router"
+        ],
+        "service": "model_config",
+        "startup": "migrate_old_rows"
+      }
+    },
+    "ai_call_rule": {
+      "label": "AI调用规则",
+      "group": "AI工具",
+      "route": "/ai-call-rule",
+      "component": "ai_rule/AiRuleManage.vue",
+      "emoji": "📐",
+      "dev": false,
+      "checklist": true,
+      "core": false,
+      "parent": null,
+      "sort_order": 3,
+      "dependsOn": [
+        "model_config"
+      ],
+      "backend": {
+        "module": "ai_rule",
+        "routerAttr": "router",
+        "extraRouters": [],
+        "service": null,
+        "startup": null
+      }
+    },
+    "settings": {
+      "label": "设置",
+      "group": "设置与帮助",
+      "route": "/settings",
+      "component": "settings/Settings.vue",
+      "emoji": "🛠️",
+      "dev": false,
+      "checklist": true,
+      "core": false,
+      "parent": null,
+      "dependsOn": [],
+      "backend": null
+    },
+    "user_management": {
+      "label": "用户管理",
+      "group": "设置与帮助",
+      "route": "/user-management",
+      "component": "settings/UserManagement.vue",
+      "emoji": "👥",
+      "dev": false,
+      "checklist": true,
+      "core": false,
+      "parent": null,
+      "dependsOn": [],
+      "backend": null
+    },
+    "clear_cache": {
+      "label": "清除缓存",
+      "group": "设置与帮助",
+      "route": "/clear-cache",
+      "component": "settings/ClearCache.vue",
+      "emoji": "🧹",
+      "dev": false,
+      "checklist": true,
+      "core": false,
+      "parent": null,
+      "dependsOn": [],
+      "backend": null
+    },
+    "usage_intro": {
+      "label": "使用介绍",
+      "group": "设置与帮助",
+      "route": "/usage-intro",
+      "component": "usage_intro/UsageIntro.vue",
+      "emoji": "📖",
+      "dev": false,
+      "checklist": true,
+      "core": false,
+      "parent": null,
+      "dependsOn": [],
+      "backend": {
+        "module": "usage_intro",
+        "routerAttr": "router",
+        "extraRouters": [],
+        "service": null,
+        "startup": null
+      }
+    },
+    "novel_split": {
+      "label": "拆分上传",
+      "group": "漫剧创作",
+      "route": "/novel_split",
+      "component": "novel_split/SplitUpload.vue",
+      "emoji": "",
+      "dev": false,
+      "checklist": false,
+      "core": false,
+      "parent": "novel_project",
+      "dependsOn": [],
+      "backend": {
+        "module": "novel_split",
+        "routerAttr": "router",
+        "extraRouters": [],
+        "service": null,
+        "startup": null
+      }
+    },
+    "novel_synopsis": {
+      "label": "大纲梗概",
+      "group": "漫剧创作",
+      "route": "/novel_synopsis",
+      "component": "novel_synopsis/Synopsis.vue",
+      "emoji": "",
+      "dev": false,
+      "checklist": false,
+      "core": false,
+      "parent": "novel_project",
+      "dependsOn": [],
+      "backend": {
+        "module": "novel_synopsis",
+        "routerAttr": "router",
+        "extraRouters": [],
+        "service": null,
+        "startup": null
+      }
+    },
+    "novel_graph": {
+      "label": "人物关系",
+      "group": "漫剧创作",
+      "route": "/novel_graph",
+      "component": "novel_graph/Graph.vue",
+      "emoji": "",
+      "dev": false,
+      "checklist": false,
+      "core": false,
+      "parent": "novel_project",
+      "dependsOn": [],
+      "backend": {
+        "module": "novel_graph",
+        "routerAttr": "router",
+        "extraRouters": [],
+        "service": null,
+        "startup": null
+      }
+    },
+    "novel_diagnose": {
+      "label": "诊断",
+      "group": "漫剧创作",
+      "route": "/novel_diagnose",
+      "component": "novel_diagnose/Diagnose.vue",
+      "emoji": "",
+      "dev": false,
+      "checklist": false,
+      "core": false,
+      "parent": "novel_project",
+      "dependsOn": [],
+      "backend": {
+        "module": "novel_diagnose",
+        "routerAttr": "router",
+        "extraRouters": [],
+        "service": null,
+        "startup": null
+      }
+    },
+    "novel_strategy": {
+      "label": "策略",
+      "group": "漫剧创作",
+      "route": "/novel_strategy",
+      "component": "novel_strategy/Strategy.vue",
+      "emoji": "",
+      "dev": false,
+      "checklist": false,
+      "core": false,
+      "parent": "novel_project",
+      "dependsOn": [],
+      "backend": {
+        "module": "novel_strategy",
+        "routerAttr": "router",
+        "extraRouters": [],
+        "service": null,
+        "startup": null
+      }
+    },
+    "novel_summary_table": {
+      "label": "总表",
+      "group": "漫剧创作",
+      "route": "/novel_summary_table",
+      "component": "novel_summary_table/SummaryTable.vue",
+      "emoji": "",
+      "dev": false,
+      "checklist": false,
+      "core": false,
+      "parent": "novel_project",
+      "dependsOn": [],
+      "backend": {
+        "module": "novel_summary_table",
+        "routerAttr": "router",
+        "extraRouters": [],
+        "service": null,
+        "startup": null
+      }
+    },
+    "novel_rewrite": {
+      "label": "改写",
+      "group": "漫剧创作",
+      "route": "/novel_rewrite",
+      "component": "novel_rewrite/Rewrite.vue",
+      "emoji": "",
+      "dev": false,
+      "checklist": false,
+      "core": false,
+      "parent": "novel_project",
+      "dependsOn": [],
+      "backend": {
+        "module": "novel_rewrite",
+        "routerAttr": "router",
+        "extraRouters": [],
+        "service": null,
+        "startup": null
+      }
+    },
+    "novel_memory": {
+      "label": "小说记忆",
+      "group": "漫剧创作",
+      "route": "/novel_memory",
+      "component": "novel_memory/MemoryView.vue",
+      "emoji": "",
+      "dev": false,
+      "checklist": false,
+      "core": false,
+      "parent": "novel_project",
+      "dependsOn": [],
+      "backend": {
+        "module": "novel_memory",
+        "routerAttr": "router",
+        "extraRouters": [],
+        "service": null,
+        "startup": null
+      }
+    },
+    "login": {
+      "label": "登录",
+      "group": null,
+      "route": "/login",
+      "component": "login/Login.vue",
+      "emoji": "",
+      "dev": false,
+      "checklist": false,
+      "core": true,
+      "parent": null,
+      "dependsOn": [],
+      "backend": {
+        "module": "login",
+        "routerAttr": "router",
+        "extraRouters": [],
+        "service": "login",
+        "startup": "ensure_seed_admin"
+      }
+    },
+    "register": {
+      "label": "注册",
+      "group": null,
+      "route": "/register",
+      "component": "login/Register.vue",
+      "emoji": "",
+      "dev": false,
+      "checklist": false,
+      "core": true,
+      "parent": null,
+      "dependsOn": [],
+      "backend": null
+    },
+    "home": {
+      "label": "首页",
+      "group": null,
+      "route": "/home",
+      "component": "common/Home.vue",
+      "emoji": "",
+      "dev": false,
+      "checklist": false,
+      "core": true,
+      "parent": null,
+      "dependsOn": [],
+      "backend": null
+    }
+  }
+}

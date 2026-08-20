@@ -1,0 +1,433 @@
+/* ============================================================
+   suxiaomo-studio — 语义化主题 Token（试点：设置页）
+   ------------------------------------------------------------
+   两层结构：
+     · Base   —— 原始色值，随主题切换（:root / [data-theme="dark"]）
+     · Semantic —— 语义命名，组件只引用语义名，不引用裸色值
+   设计原则（参考 Material 3 / GitHub / Ant Design）：
+     · 浅色值 = 当前线上观感（保持不变，零视觉漂移）
+     · 深色 = near-black 基底 + 逐级提亮的表面分层
+              （page < surface < surface-2 < elevated）
+     · 文字用「白色不透明度」做层级（92% / 70% / 45%），避免 100% 晕光
+     · 强调色在深色下降饱和提亮（fill 略亮、文字/图标更亮）
+   后续其他页面迁移时，只需把裸色值换成 --sx-* 语义 token，
+   无需再为每个页面写 [data-theme="dark"] 补丁。
+   ============================================================ */
+
+:root {
+  /* —— 浅色（= 现状观感，不改） —— */
+  --sx-bg-page: #f4f6fb;
+  --sx-bg-surface: #ffffff;
+  --sx-bg-surface-2: #f8f9fc;
+  --sx-bg-elevated: #ffffff;
+
+  --sx-text-strong: #1b1f3b;   /* 标题 / 主文本 */
+  --sx-text: #6e7391;          /* 副文本 / 说明 */
+  --sx-text-muted: #9aa0b8;    /* 占位 / 最弱 */
+
+  --sx-border: #e7e9f2;
+  --sx-border-strong: #d4d7e6;
+  --sx-border-hover: #c4c8f5;
+
+  --sx-accent: #6c5cff;        /* 填充（按钮、active 边框） */
+  --sx-accent-hover: #5b4de6;
+  --sx-accent-strong: #5b4de6; /* 文字 / 图标强调 */
+  --sx-accent-soft: rgba(108, 92, 255, .12);
+
+  --sx-overlay: rgba(27, 31, 59, .45);
+  --sx-shadow-card: 0 3px 14px rgba(30, 34, 56, .04);
+  --sx-shadow-pop: 0 12px 40px rgba(27, 31, 59, .18);
+
+  --sx-icon-bg: linear-gradient(135deg, #f4f6fb 0%, #e9ecfb 100%);
+  --sx-icon-fg: #6c5cff;
+
+  /* —— 精确对齐页面原色的补充层级（保证浅色零漂移） —— */
+  --sx-text-emphasis: #5a6072;   /* 表头 / 字段标签：比副文本更深一档 */
+  --sx-text-faint: #b3b8c9;      /* 占位提示 / 最弱说明 */
+  --sx-border-input: #e3e6ef;    /* 输入框边框（比卡片边框略深） */
+  --sx-border-faint: #f0f1f5;    /* 行内分隔线（比卡片边框更浅） */
+  --sx-row-hover: #fafbff;       /* 表格行 hover */
+  --sx-row-selected-bg: #eef2ff; /* 表格行选中态 */
+
+  --sx-link: #4f7cff;            /* 文字链接 */
+
+  --sx-toast-bg: #2b2f44;        /* Toast 背景 */
+  --sx-toast-text: #ffffff;      /* Toast 文字 */
+
+  /* —— 警告/重要声明区块 —— */
+  --sx-notice-warn-border: #ffd0bd;
+  --sx-notice-warn-bg: #ffffff;
+  --sx-notice-warn-head-bg: #fff5f0;
+  --sx-notice-warn-head-text: #b94a2a;
+  --sx-notice-warn-row-hover: #fff8f3;
+  --sx-notice-warn-row-danger-bg: #fff5f5;
+  --sx-notice-warn-row-danger-text: #c0392b;
+  --sx-notice-warn-tag-bg: #fff0e6;
+  --sx-notice-warn-tag-text: #e2772a;
+
+  /* —— 紫色表头（storage 表格等） —— */
+  --sx-head-purple-bg: linear-gradient(135deg, #f8f7ff 0%, #f0f2ff 100%);
+  --sx-head-purple-text: #5b4f8c;
+
+  /* —— 按钮（浅色 = 现状观感） —— */
+  --sx-btn-primary-bg: linear-gradient(135deg, #4f7cff 0%, #7b5cff 100%);
+  --sx-btn-primary-shadow: 0 8px 20px rgba(79, 124, 255, .3);
+  --sx-btn-primary-shadow-hover: 0 12px 26px rgba(79, 124, 255, .42);
+
+  /* 按钮纯色（社交账号页主按钮，浅色零漂移保留 #5b6cff） */
+  --sx-btn-primary-solid-bg: #5b6cff;
+  --sx-btn-primary-solid-hover: #4a5bff;
+
+  --sx-btn-secondary-text: #4f7cff;
+  --sx-btn-secondary-bg: #f5f7ff;
+  --sx-btn-secondary-bg-hover: #e8eeff;
+  --sx-btn-secondary-border: #d9e1ff;
+
+  --sx-btn-ghost-bg: #eef1f8;
+  --sx-btn-ghost-bg-hover: #e3e9f7;
+  --sx-btn-ghost-text: #445;
+  --sx-btn-ghost-border: #dfe4ef;
+
+  --sx-btn-edit-bg: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  --sx-btn-edit-shadow: 0 6px 16px rgba(59, 130, 246, .26);
+  --sx-btn-edit-shadow-hover: 0 8px 20px rgba(59, 130, 246, .36);
+
+  --sx-btn-danger-text: #d24b4b;
+  --sx-btn-danger-bg: #fff0f0;
+  --sx-btn-danger-bg-hover: #ffe6e6;
+  --sx-btn-danger-border: #f5c6c6;
+
+  /* —— 卡片选中态 —— */
+  --sx-card-active-border: #4f7cff;
+  --sx-card-active-bg: linear-gradient(180deg, #f8faff 0%, #fff 100%);
+  --sx-card-active-shadow: 0 8px 24px rgba(79, 124, 255, .12);
+
+  /* —— 卡片交互态（WebNav 等卡片悬浮/拖拽） —— */
+  --sx-card-hover-shadow: 0 5px 16px rgba(91, 110, 255, .12);
+  --sx-card-dragover-ring: 0 0 0 2px rgba(79, 91, 255, .25);
+
+  /* —— 标签（语义色：info/success/purple/warn/default） —— */
+  --sx-tag-info-text: #4f7cff;    --sx-tag-info-bg: #eef2ff;    --sx-tag-info-border: #d9e1ff;
+  --sx-tag-success-text: #1f9d6b; --sx-tag-success-bg: #e7f9f0; --sx-tag-success-border: #b8ecd4;
+  --sx-tag-success-soft: rgba(47, 174, 102, .18);   /* 状态点发光 ring / 开关 focus ring */
+  --sx-tag-success-shadow: 0 2px 8px rgba(47, 174, 102, .35); /* 绿色开关开启阴影 */
+  --sx-tag-success-fill: #1f9d6b;                  /* 实心绿色状态徽标/开关背景 */
+  --sx-tag-default-fill: #9aa0b8;                  /* 灰色状态徽标/开关背景 */
+  --sx-tag-purple-text: #a05cff;  --sx-tag-purple-bg: #f5efff;  --sx-tag-purple-border: #e7d9ff;
+  --sx-tag-warn-text: #d97706;    --sx-tag-warn-bg: #fff7ed;    --sx-tag-warn-border: #fed7aa;
+  --sx-tag-default-text: #5f6b8a; --sx-tag-default-bg: #f0f2f9; --sx-tag-default-border: #e3e6ef;
+
+  /* —— 禁用 / placeholder —— */
+  --sx-disabled-bg: #eef0f5;
+  --sx-disabled-text: #8b92a8;
+
+  /* —— 应用中心/通用组件精确对齐 token —— */
+  --sx-border-soft: #e3e5f0;                 /* 卡片边框（比 --sx-border 略深） */
+  --sx-text-soft: #5b6178;                  /* 副文本/说明（应用中心 .sub） */
+  --sx-count-bg: #eef0f6;                   /* 计数小标签底 */
+  --sx-count-text: #8b90a8;                 /* 计数小标签字 */
+  --sx-shadow-tile: 0 1px 4px rgba(20, 22, 40, .08);
+  --sx-shadow-tile-hover: 0 4px 10px rgba(20, 22, 40, .14);
+  --sx-tileops-bg: rgba(255, 255, 255, .96);/* 卡片悬浮操作条底 */
+  --sx-toast-dark-bg: rgba(20, 22, 40, .92);/* 深色 toast（接近黑） */
+  --sx-chip-bg: #f1f3fb;                    /* 分类 chip 底 */
+  --sx-chip-text: #4a4f6a;                  /* 分类 chip 字 */
+
+  /* —— 圆角 —— */
+  --sx-radius-sm: 8px;
+  --sx-radius: 10px;
+  --sx-radius-lg: 16px;
+  --sx-radius-pill: 999px;
+
+  /* —— 每日任务：积分标签 —— */
+  --sx-points-text: #b6791f;
+  --sx-points-bg: #fff6e6;
+  --sx-points-border: #f3d9a6;
+  --sx-points-accent: #f0a93a;
+  --sx-points-cum-text: #2a7d8c;
+  --sx-points-cum-bg: #e3f4f7;
+  --sx-points-cum-border: #bfe6ec;
+  --sx-points-cum-accent: #2a9db5;
+  --sx-points-daily-text: #a8551f;
+  --sx-points-daily-bg: #fdeede;
+  --sx-points-daily-border: #f3d2ad;
+
+  /* —— 每日任务：状态色 —— */
+  --sx-status-must-text: #a8642a;
+  --sx-status-today-text: #d98a2b;
+  --sx-status-expired-text: #e25b5b;
+  --sx-status-expired-num-text: #e25757;
+  --sx-status-neutral-text: #8a7a55;
+  --sx-status-overdue-text: #e25757;
+  --sx-status-overdue-bg: #fff0f0;
+  --sx-status-overdue-border: #f3c4c4;
+  --sx-status-paused-text: #6c7cc9;
+  --sx-status-paused-bg: #f1f3f8;
+  --sx-status-paused-border: #d8ddee;
+  --sx-status-pending-accent: #c2c6da;
+
+  /* —— 每日任务：摘要块 / 信息条 —— */
+  --sx-summary-bg: #f6f8fd;
+  --sx-summary-border: #4f7cff;
+  --sx-subtle-info-text: #4f7cff;
+  --sx-subtle-info-bg: #f0f4ff;
+  --sx-subtle-info-border: #d8e0fc;
+
+  /* —— 卡片悬浮操作条 —— */
+  --sx-card-ops-bg: rgba(255, 255, 255, .96);
+
+  /* —— 文件管理专用 —— */
+  --sx-btn-orange-bg: linear-gradient(135deg, #ff8a4c 0%, #ff5e62 100%);
+  --sx-btn-orange-hover: #e2920f;
+  --sx-tile-bar-bg: #1c1d26;
+  --sx-tile-bar-text: #ffffff;
+  --sx-crop-bg: #1a1b26;
+
+  /* —— 推文助手：橙色主题 —— */
+  --sx-accent-orange: #ff7a3a;
+  --sx-accent-orange-hover: #ff8f5c;
+  --sx-accent-orange-soft-bg: #fff1e9;
+  --sx-accent-orange-soft-bg-hover: #ffede3;
+  --sx-accent-orange-soft-border: #f0e2d8;
+  --sx-accent-orange-muted-text: #b06a3a;
+  --sx-accent-orange-soft: rgba(255, 138, 76, .12);
+  --sx-btn-orange-shadow: 0 4px 14px rgba(255, 110, 80, .3);
+  --sx-btn-orange-shadow-hover: 0 6px 18px rgba(255, 110, 80, .42);
+  --sx-card-orange-shadow: 0 5px 16px rgba(255, 110, 80, .12);
+  --sx-tag-no-text: #e25757;
+  --sx-tag-no-bg: #fff0f0;
+  --sx-tag-no-border: #f5c4c4;
+
+  /* —— 羊毛管理：橙色主题（与推文助手色阶略有不同，单独定义） —— */
+  --sx-fr-btn-orange-bg: linear-gradient(135deg, #ff9a52 0%, #ff7a3a 100%);
+  --sx-fr-accent-orange-soft-bg: #fff2ea;
+  --sx-fr-accent-orange-muted-text: #d76a2a;
+  --sx-fr-card-orange-shadow: 0 8px 22px rgba(255, 122, 58, .12);
+
+  /* —— 爆款收集：粉红色主题 —— */
+  --sx-accent-pink: #ff3d63;
+  --sx-accent-pink-hover: #ff6b8b;
+  --sx-accent-pink-soft-bg: #fff0f3;
+  --sx-accent-pink-soft-bg-hover: #ffe4ea;
+  --sx-accent-pink-soft-border: #ffd0d8;
+  --sx-accent-pink-muted-text: #c21e3a;
+  --sx-accent-pink-soft: rgba(255, 107, 139, .14);
+  --sx-btn-pink-bg: linear-gradient(135deg, #ff6b8b 0%, #ff3d63 100%);
+  --sx-btn-pink-shadow: 0 4px 14px rgba(255, 61, 99, .28);
+  --sx-btn-pink-shadow-hover: 0 6px 18px rgba(255, 61, 99, .38);
+  --sx-card-pink-shadow: 0 8px 22px rgba(255, 61, 99, .12);
+  --sx-tag-pink-bg: #ffeef2;
+  --sx-tag-pink-text: #e2375c;
+  --sx-tag-red-fill: #e2372f;
+  --sx-tag-red-text: #e2372f;
+  --sx-tag-red-shadow: 0 2px 8px rgba(226, 55, 47, .32);
+}
+
+[data-theme="dark"] {
+  /* —— 深色：以侧边栏为锚点，page 与侧栏顶部齐平，卡片/浮层逐级提亮 —— */
+  --sx-bg-page: #1b1f3b;        /* 与侧边栏顶部一致，不再比侧栏黑 */
+  --sx-bg-surface: #252a4a;      /* 卡片：比侧栏浅一档 */
+  --sx-bg-surface-2: #2a2f4d;    /* 内嵌面板 / 输入框：再浅一档 */
+  --sx-bg-elevated: #30355a;     /* 弹窗 / 浮层：最亮 = 抬起 */
+
+  --sx-text-strong: rgba(255, 255, 255, .92);
+  --sx-text: rgba(255, 255, 255, .70);
+  --sx-text-muted: rgba(255, 255, 255, .45);
+
+  --sx-border: #3e4670;          /* 比卡片略亮，保证卡片边缘可见 */
+  --sx-border-strong: #4a5280;
+  --sx-border-hover: #5c7dff;
+
+  --sx-accent: #7b6cff;          /* fill：略提亮，暗底上更醒目 */
+  --sx-accent-hover: #8f82ff;
+  --sx-accent-strong: #a99bff;   /* 文字 / 图标强调：降饱和提亮 */
+  --sx-accent-soft: rgba(123, 92, 255, .18);
+
+  --sx-overlay: rgba(12, 15, 38, .55);
+  --sx-shadow-card: 0 3px 14px rgba(0, 0, 0, .35);
+  --sx-shadow-pop: 0 12px 40px rgba(0, 0, 0, .5);
+
+  --sx-icon-bg: linear-gradient(135deg, #30355a 0%, #252a4a 100%);
+  --sx-icon-fg: #a99bff;
+
+  /* —— 补充层级：深色值（以侧栏为锚点，逐级提亮） —— */
+  --sx-text-emphasis: rgba(255, 255, 255, .78);
+  --sx-text-faint: rgba(255, 255, 255, .45);
+  --sx-border-input: #4a5280;
+  --sx-border-faint: #32385c;
+  --sx-row-hover: #2d3352;        /* 表格行 hover：比卡片略亮 */
+  --sx-row-selected-bg: rgba(123, 108, 255, .18); /* 表格行选中态 */
+
+  --sx-link: #8fb3ff;             /* 文字链接：提亮 */
+
+  --sx-toast-bg: #e3e7ff;         /* Toast 背景：深色下用浅紫白 */
+  --sx-toast-text: #131523;       /* Toast 文字：深色背景 */
+
+  /* —— 警告/重要声明区块 —— */
+  --sx-notice-warn-border: rgba(255, 160, 90, .35);
+  --sx-notice-warn-bg: var(--sx-bg-surface);
+  --sx-notice-warn-head-bg: rgba(226, 118, 42, .15);
+  --sx-notice-warn-head-text: #ffb27a;
+  --sx-notice-warn-row-hover: rgba(255, 160, 90, .08);
+  --sx-notice-warn-row-danger-bg: rgba(224, 57, 57, .12);
+  --sx-notice-warn-row-danger-text: #ff8585;
+  --sx-notice-warn-tag-bg: rgba(226, 118, 42, .18);
+  --sx-notice-warn-tag-text: #ffb27a;
+
+  /* —— 紫色表头（storage 表格等） —— */
+  --sx-head-purple-bg: rgba(108, 92, 255, .15);
+  --sx-head-purple-text: #b7a6ff;
+
+  /* —— 按钮（深色：降饱和/提亮，避免刺眼） —— */
+  --sx-btn-primary-bg: linear-gradient(135deg, #5b7cff 0%, #8f82ff 100%);
+  --sx-btn-primary-shadow: 0 8px 20px rgba(79, 124, 255, .25);
+  --sx-btn-primary-shadow-hover: 0 12px 26px rgba(79, 124, 255, .35);
+
+  /* 按钮纯色（深色：提亮蓝调） */
+  --sx-btn-primary-solid-bg: #7b6cff;
+  --sx-btn-primary-solid-hover: #8f82ff;
+
+  --sx-btn-secondary-text: #a99bff;
+  --sx-btn-secondary-bg: rgba(123, 108, 255, .15);
+  --sx-btn-secondary-bg-hover: rgba(123, 108, 255, .22);
+  --sx-btn-secondary-border: rgba(123, 108, 255, .35);
+
+  --sx-btn-ghost-bg: #1c2036;
+  --sx-btn-ghost-bg-hover: #2a2f4d;
+  --sx-btn-ghost-text: rgba(255, 255, 255, .78);
+  --sx-btn-ghost-border: #4a5280;
+
+  --sx-btn-edit-bg: linear-gradient(135deg, #5b9bff 0%, #6b8cff 100%);
+  --sx-btn-edit-shadow: 0 6px 16px rgba(59, 130, 246, .22);
+  --sx-btn-edit-shadow-hover: 0 8px 20px rgba(59, 130, 246, .32);
+
+  --sx-btn-danger-text: #ff8585;
+  --sx-btn-danger-bg: rgba(210, 75, 75, .15);
+  --sx-btn-danger-bg-hover: rgba(210, 75, 75, .22);
+  --sx-btn-danger-border: rgba(255, 133, 133, .35);
+
+  /* —— 卡片选中态 —— */
+  --sx-card-active-border: #7b6cff;
+  --sx-card-active-bg: linear-gradient(180deg, rgba(123, 108, 255, .12) 0%, rgba(123, 108, 255, .05) 100%);
+  --sx-card-active-shadow: 0 8px 24px rgba(79, 124, 255, .18);
+
+  /* —— 卡片交互态（深色：提亮蓝调） —— */
+  --sx-card-hover-shadow: 0 12px 28px rgba(123, 108, 255, .22);
+  --sx-card-dragover-ring: 0 0 0 2px rgba(123, 108, 255, .35);
+
+  /* —— 标签（深色：保留色相，降饱和/压亮度） —— */
+  --sx-tag-info-text: #8fb3ff;    --sx-tag-info-bg: rgba(79, 124, 255, .15);    --sx-tag-info-border: rgba(79, 124, 255, .3);
+  --sx-tag-success-text: #5ed99a; --sx-tag-success-bg: rgba(31, 157, 107, .15); --sx-tag-success-border: rgba(31, 157, 107, .3);
+  --sx-tag-success-soft: rgba(80, 210, 140, .22);
+  --sx-tag-success-shadow: 0 2px 8px rgba(80, 210, 140, .35);
+  --sx-tag-success-fill: rgba(80, 210, 140, .82);
+  --sx-tag-default-fill: #6a7396;
+  --sx-tag-purple-text: #c49fff;  --sx-tag-purple-bg: rgba(160, 92, 255, .15);  --sx-tag-purple-border: rgba(160, 92, 255, .3);
+  --sx-tag-warn-text: #ffb347;    --sx-tag-warn-bg: rgba(217, 119, 6, .15);    --sx-tag-warn-border: rgba(217, 119, 6, .3);
+  --sx-tag-default-text: #a5aec6; --sx-tag-default-bg: rgba(165, 174, 198, .12); --sx-tag-default-border: rgba(165, 174, 198, .25);
+
+  /* —— 禁用 / placeholder —— */
+  --sx-disabled-bg: rgba(255, 255, 255, .08);
+  --sx-disabled-text: rgba(255, 255, 255, .45);
+
+  /* —— 应用中心/通用组件精确对齐 token（深色值） —— */
+  --sx-border-soft: #3a3f63;
+  --sx-text-soft: rgba(255, 255, 255, .70);
+  --sx-count-bg: #2a2f4d;
+  --sx-count-text: rgba(255, 255, 255, .45);
+  --sx-shadow-tile: 0 2px 8px rgba(0, 0, 0, .3);
+  --sx-shadow-tile-hover: 0 6px 16px rgba(0, 0, 0, .4);
+  --sx-tileops-bg: rgba(37, 42, 74, .96);
+  --sx-toast-dark-bg: rgba(12, 15, 38, .92);
+  --sx-chip-bg: rgba(123, 108, 255, .15);
+  --sx-chip-text: rgba(255, 255, 255, .70);
+
+  /* —— 圆角 —— */
+  --sx-radius-sm: 8px;
+  --sx-radius: 10px;
+  --sx-radius-lg: 16px;
+  --sx-radius-pill: 999px;
+
+  /* —— 每日任务：积分标签 —— */
+  --sx-points-text: #f0c277;
+  --sx-points-bg: #3a3018;
+  --sx-points-border: #5a4a1f;
+  --sx-points-accent: #f0c277;
+  --sx-points-cum-text: #6fd0e0;
+  --sx-points-cum-bg: #15323a;
+  --sx-points-cum-border: #1f5a66;
+  --sx-points-cum-accent: #6fd0e0;
+  --sx-points-daily-text: #f0b277;
+  --sx-points-daily-bg: #3a2814;
+  --sx-points-daily-border: #5a3a1f;
+
+  /* —— 每日任务：状态色 —— */
+  --sx-status-must-text: #e0a87a;
+  --sx-status-today-text: #e0a87a;
+  --sx-status-expired-text: #ff8a8a;
+  --sx-status-expired-num-text: #e25757;
+  --sx-status-neutral-text: rgba(255, 255, 255, .45);
+  --sx-status-overdue-text: #ff8a8a;
+  --sx-status-overdue-bg: rgba(226, 87, 87, .18);
+  --sx-status-overdue-border: rgba(226, 87, 87, .4);
+  --sx-status-paused-text: #a6b0ff;
+  --sx-status-paused-bg: #2a2f4d;
+  --sx-status-paused-border: #4a5280;
+  --sx-status-pending-accent: #5c6388;
+
+  /* —— 每日任务：摘要块 / 信息条 —— */
+  --sx-summary-bg: rgba(79, 124, 255, .10);
+  --sx-summary-border: #7b6cff;
+  --sx-subtle-info-text: #8fb3ff;
+  --sx-subtle-info-bg: rgba(79, 124, 255, .15);
+  --sx-subtle-info-border: rgba(79, 124, 255, .3);
+
+  /* —— 卡片悬浮操作条 —— */
+  --sx-card-ops-bg: rgba(37, 42, 74, .96);
+
+  /* —— 文件管理专用 —— */
+  --sx-btn-orange-bg: linear-gradient(135deg, #ff9a6a 0%, #ff7a3a 100%);
+  --sx-btn-orange-hover: #b87a16;
+  --sx-tile-bar-bg: #2a2f4d;
+  --sx-tile-bar-text: #ffffff;
+  --sx-crop-bg: #0a0c14;
+
+  /* —— 推文助手：橙色主题（深色） —— */
+  --sx-accent-orange: #ffb27a;
+  --sx-accent-orange-hover: #ffc49e;
+  --sx-accent-orange-soft-bg: rgba(255, 160, 90, .12);
+  --sx-accent-orange-soft-bg-hover: rgba(255, 160, 90, .18);
+  --sx-accent-orange-soft-border: rgba(255, 160, 90, .25);
+  --sx-accent-orange-muted-text: #e0a87a;
+  --sx-accent-orange-soft: rgba(255, 160, 90, .18);
+  --sx-btn-orange-shadow: 0 4px 14px rgba(255, 138, 100, .25);
+  --sx-btn-orange-shadow-hover: 0 6px 18px rgba(255, 138, 100, .35);
+  --sx-card-orange-shadow: 0 5px 16px rgba(255, 160, 90, .15);
+  --sx-tag-no-text: #ff8585;
+  --sx-tag-no-bg: rgba(210, 75, 75, .15);
+  --sx-tag-no-border: rgba(255, 133, 133, .35);
+
+  /* —— 羊毛管理：橙色主题（深色） —— */
+  --sx-fr-btn-orange-bg: linear-gradient(135deg, #ff9a6a 0%, #ff8a6a 100%);
+  --sx-fr-accent-orange-soft-bg: rgba(255, 160, 90, .12);
+  --sx-fr-accent-orange-muted-text: #e0a87a;
+  --sx-fr-card-orange-shadow: 0 8px 22px rgba(255, 160, 90, .15);
+
+  /* —— 爆款收集：粉红色主题（深色） —— */
+  --sx-accent-pink: #ff7a93;
+  --sx-accent-pink-hover: #ff9aad;
+  --sx-accent-pink-soft-bg: rgba(255, 122, 147, .12);
+  --sx-accent-pink-soft-bg-hover: rgba(255, 122, 147, .18);
+  --sx-accent-pink-soft-border: rgba(255, 122, 147, .25);
+  --sx-accent-pink-muted-text: #ff9aad;
+  --sx-accent-pink-soft: rgba(255, 122, 147, .18);
+  --sx-btn-pink-bg: linear-gradient(135deg, #ff8aa0 0%, #ff6b8b 100%);
+  --sx-btn-pink-shadow: 0 4px 14px rgba(255, 122, 147, .25);
+  --sx-btn-pink-shadow-hover: 0 6px 18px rgba(255, 122, 147, .35);
+  --sx-card-pink-shadow: 0 8px 22px rgba(255, 122, 147, .15);
+  --sx-tag-pink-bg: rgba(255, 122, 147, .15);
+  --sx-tag-pink-text: #ff9aad;
+  --sx-tag-red-fill: rgba(226, 55, 47, .82);
+  --sx-tag-red-text: #ff8585;
+  --sx-tag-red-shadow: 0 2px 8px rgba(255, 133, 133, .32);
+}

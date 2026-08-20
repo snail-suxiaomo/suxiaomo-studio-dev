@@ -1,0 +1,20 @@
+{
+  "version": "1.0.0",
+  "note": "打包功能清单（默认全开）。如需「只打包部分功能给别人」，把对应 enabled 改为 false 后运行 node build.js，或未来用打包页勾选生成 build_selection.json。",
+  "features": [
+    { "id": "novel_project", "name": "小说转漫剧（00-拆分 ~ 12-分镜 管线）", "enabled": true },
+    { "id": "ai_chat", "name": "AI 助手（多轮会话 + 持久化）", "enabled": true },
+    { "id": "model_config", "name": "模型配置（厂商/模型档案/快速专家模式）", "enabled": true },
+    { "id": "filespace", "name": "文件空间", "enabled": true },
+    { "id": "novel_memory", "name": "记忆库", "enabled": true },
+    { "id": "prompt_library", "name": "提示词库", "enabled": true },
+    { "id": "apps_launcher", "name": "应用启动器", "enabled": true },
+    { "id": "web_nav", "name": "网址导航", "enabled": true },
+    { "id": "free_resources", "name": "免费资源", "enabled": true },
+    { "id": "daily_tasks", "name": "每日任务", "enabled": true },
+    { "id": "novel_tweet", "name": "小说推文", "enabled": true },
+    { "id": "logger", "name": "日志查看", "enabled": true },
+    { "id": "settings", "name": "设置（主题/数据路径/备份）", "enabled": true },
+    { "id": "material_library", "name": "素材库", "enabled": false }
+  ]
+}

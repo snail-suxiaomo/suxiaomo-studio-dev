@@ -1,0 +1,33 @@
+-- 爆款收集表：收集抖音 / 快手 / 红果等平台爆款视频与创作者信息
+-- 截图存 DATA_ROOT/data/viral_images/{id}/，本表只存相对路径数组(JSON 字符串)
+CREATE TABLE IF NOT EXISTS viral_collection (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  platform TEXT NOT NULL DEFAULT '',
+  category TEXT NOT NULL DEFAULT '漫剧',
+  title TEXT NOT NULL DEFAULT '',
+  link TEXT NOT NULL DEFAULT '',
+  drama_name TEXT NOT NULL DEFAULT '',
+  aliases TEXT NOT NULL DEFAULT '',
+  original_novel TEXT NOT NULL DEFAULT '',
+  username TEXT NOT NULL DEFAULT '',
+  douyin_id TEXT NOT NULL DEFAULT '',
+  following TEXT NOT NULL DEFAULT '',
+  followers TEXT NOT NULL DEFAULT '',
+  works_count TEXT NOT NULL DEFAULT '',
+  bio TEXT NOT NULL DEFAULT '',
+  homepage_link TEXT NOT NULL DEFAULT '',
+  likes TEXT NOT NULL DEFAULT '',
+  favorites TEXT NOT NULL DEFAULT '',
+  play_count TEXT NOT NULL DEFAULT '',
+  comment_count TEXT NOT NULL DEFAULT '',
+  share_count TEXT NOT NULL DEFAULT '',
+  on_hongguo INTEGER NOT NULL DEFAULT 0,
+  learn_from TEXT NOT NULL DEFAULT '',
+  novel_clue TEXT NOT NULL DEFAULT '',
+  tags TEXT NOT NULL DEFAULT '',
+  novel_tags TEXT NOT NULL DEFAULT '',
+  screenshots TEXT NOT NULL DEFAULT '[]',
+  note TEXT NOT NULL DEFAULT '',
+  created_at TEXT NOT NULL DEFAULT (datetime('now','localtime')),
+  updated_at TEXT NOT NULL DEFAULT (datetime('now','localtime'))
+);

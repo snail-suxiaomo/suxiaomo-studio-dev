@@ -1,0 +1,248 @@
+{
+  "enabled": [
+    "login",
+    "register",
+    "home",
+    "prompt_library",
+    "novel_create",
+    "script_create",
+    "viral_collection",
+    "novel_project",
+    "manju_generate",
+    "free_resources",
+    "novel_tweet",
+    "daily_tasks",
+    "filespace",
+    "apps_launcher",
+    "web_nav",
+    "social_accounts",
+    "chat",
+    "key_vault",
+    "model_config",
+    "ai_call_rule",
+    "settings",
+    "user_management",
+    "clear_cache",
+    "usage_intro",
+    "novel_split",
+    "novel_synopsis",
+    "novel_graph",
+    "novel_diagnose",
+    "novel_strategy",
+    "novel_summary_table",
+    "novel_rewrite",
+    "novel_memory"
+  ],
+  "backend": [
+    {
+      "key": "login",
+      "module": "login",
+      "routerAttr": "router",
+      "extraRouters": [],
+      "service": "login",
+      "startup": "ensure_seed_admin"
+    },
+    {
+      "key": "prompt_library",
+      "module": "prompt_library",
+      "routerAttr": "router",
+      "extraRouters": [],
+      "service": null,
+      "startup": null
+    },
+    {
+      "key": "viral_collection",
+      "module": "viral_collection",
+      "routerAttr": "router",
+      "extraRouters": [],
+      "service": null,
+      "startup": null
+    },
+    {
+      "key": "novel_project",
+      "module": "novel_project",
+      "routerAttr": "router",
+      "extraRouters": [],
+      "service": null,
+      "startup": null
+    },
+    {
+      "key": "manju_generate",
+      "module": "manju_generate",
+      "routerAttr": "router",
+      "extraRouters": [],
+      "service": null,
+      "startup": null
+    },
+    {
+      "key": "free_resources",
+      "module": "free_resources",
+      "routerAttr": "router",
+      "extraRouters": [],
+      "service": null,
+      "startup": null
+    },
+    {
+      "key": "novel_tweet",
+      "module": "novel_tweet",
+      "routerAttr": "router",
+      "extraRouters": [],
+      "service": null,
+      "startup": null
+    },
+    {
+      "key": "daily_tasks",
+      "module": "daily_tasks",
+      "routerAttr": "router",
+      "extraRouters": [],
+      "service": null,
+      "startup": null
+    },
+    {
+      "key": "filespace",
+      "module": "filespace",
+      "routerAttr": "router",
+      "extraRouters": [],
+      "service": "filespace",
+      "startup": "migrate_cover_paths"
+    },
+    {
+      "key": "apps_launcher",
+      "module": "apps_launcher",
+      "routerAttr": "router",
+      "extraRouters": [],
+      "service": null,
+      "startup": null
+    },
+    {
+      "key": "web_nav",
+      "module": "web_nav",
+      "routerAttr": "router",
+      "extraRouters": [],
+      "service": null,
+      "startup": null
+    },
+    {
+      "key": "social_accounts",
+      "module": "social_account",
+      "routerAttr": "router",
+      "extraRouters": [],
+      "service": null,
+      "startup": null
+    },
+    {
+      "key": "chat",
+      "module": "chat",
+      "routerAttr": "router",
+      "extraRouters": [],
+      "service": null,
+      "startup": null
+    },
+    {
+      "key": "key_vault",
+      "module": "key_vault",
+      "routerAttr": "router",
+      "extraRouters": [],
+      "service": null,
+      "startup": null
+    },
+    {
+      "key": "model_config",
+      "module": "model_config",
+      "routerAttr": "router",
+      "extraRouters": [
+        "media_router"
+      ],
+      "service": "model_config",
+      "startup": "migrate_old_rows"
+    },
+    {
+      "key": "ai_call_rule",
+      "module": "ai_rule",
+      "routerAttr": "router",
+      "extraRouters": [],
+      "service": null,
+      "startup": null
+    },
+    {
+      "key": "usage_intro",
+      "module": "usage_intro",
+      "routerAttr": "router",
+      "extraRouters": [],
+      "service": null,
+      "startup": null
+    },
+    {
+      "key": "novel_split",
+      "module": "novel_split",
+      "routerAttr": "router",
+      "extraRouters": [],
+      "service": null,
+      "startup": null
+    },
+    {
+      "key": "novel_synopsis",
+      "module": "novel_synopsis",
+      "routerAttr": "router",
+      "extraRouters": [],
+      "service": null,
+      "startup": null
+    },
+    {
+      "key": "novel_graph",
+      "module": "novel_graph",
+      "routerAttr": "router",
+      "extraRouters": [],
+      "service": null,
+      "startup": null
+    },
+    {
+      "key": "novel_diagnose",
+      "module": "novel_diagnose",
+      "routerAttr": "router",
+      "extraRouters": [],
+      "service": null,
+      "startup": null
+    },
+    {
+      "key": "novel_strategy",
+      "module": "novel_strategy",
+      "routerAttr": "router",
+      "extraRouters": [],
+      "service": null,
+      "startup": null
+    },
+    {
+      "key": "novel_summary_table",
+      "module": "novel_summary_table",
+      "routerAttr": "router",
+      "extraRouters": [],
+      "service": null,
+      "startup": null
+    },
+    {
+      "key": "novel_rewrite",
+      "module": "novel_rewrite",
+      "routerAttr": "router",
+      "extraRouters": [],
+      "service": null,
+      "startup": null
+    },
+    {
+      "key": "novel_memory",
+      "module": "novel_memory",
+      "routerAttr": "router",
+      "extraRouters": [],
+      "service": null,
+      "startup": null
+    },
+    {
+      "key": "prefs",
+      "module": "prefs",
+      "routerAttr": "router",
+      "extraRouters": [],
+      "service": null,
+      "startup": null
+    }
+  ]
+}
