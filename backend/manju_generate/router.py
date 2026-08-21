@@ -44,6 +44,17 @@ def _ensure_table():
                 updated_at TEXT NOT NULL DEFAULT (datetime('now','localtime'))
             )'''
         )
+        # 分类表：从硬编码 CATEGORIES 升级为可配置（支持重命名/新增/删除）
+        conn.execute(
+            '''CREATE TABLE IF NOT EXISTS manju_categories (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL UNIQUE,
+                sort_order INTEGER NOT NULL DEFAULT 0,
+                is_default INTEGER NOT NULL DEFAULT 0,
+                created_at TEXT NOT NULL DEFAULT (datetime('now','localtime')),
+                updated_at TEXT NOT NULL DEFAULT (datetime('now','localtime'))
+            )'''
+        )
         conn.commit()
     finally:
         conn.close()
@@ -60,24 +71,18 @@ def _seed():
             # 去重/剧本/资产/分镜：默认 AI 对话入口
             ('去重', 'DeepSeek', 'AI对话', 'https://chat.deepseek.com/'),
             ('剧本', 'Kimi', 'AI对话', 'https://kimi.moonshot.cn/'),
-            ('资产', 'ChatGPT', 'AI对话', 'https://chat.openai.com/'),
+            ('资产', 'Kimi', 'AI对话', 'https://kimi.moonshot.cn/'),
             ('分镜', 'WorkBuddy', 'AI对话', 'https://www.workbuddy.cn/'),
-            # 生图：软件名-标签（人物/场景/道具）自定义结构
-            ('生图', '椒图AI-人物', '人物', 'https://'),
-            ('生图', '椒图AI-场景', '场景', 'https://'),
-            ('生图', '椒图AI-道具', '道具', 'https://'),
-            ('生图', 'Flux art-人物', '人物', 'https://'),
-            ('生图', 'Flux art-场景', '场景', 'https://'),
-            ('生图', 'Flux art-道具', '道具', 'https://'),
+            # 生图：各平台只保留一个默认入口（用户自行添加细分标签）
+            ('生图', '椒图AI', '人物', 'https://jiaotu.top/studio?sessionId=7239559e-6900-4a01-92fd-490451c650d3'),
+            ('生图', 'Flux art', '通用', 'https://flux-art.ai/ai-image'),
             # 生视频：常用平台
             ('生视频', '即梦', '视频', 'https://jimeng.jianying.com'),
-            ('生视频', '小云雀', '视频', 'https://'),
+            ('生视频', '小云雀', '视频', 'https://xyq.jianying.com/home?tab_name=home'),
             ('生视频', 'Liblib', '视频', 'https://www.liblib.art'),
             ('生视频', '可灵', '视频', 'https://klingai.kuaishou.com'),
-            ('生视频', 'ComfyUI', '视频', 'http://127.0.0.1:8188'),
-            # 音色：默认只保留剪映 + TTS（其余由用户自定义添加）
-            ('音色', '配音-剪映', '配音', 'https://'),
-            ('音色', '配音-TTS', 'TTS', 'https://'),
+            # 音色：默认只保留剪映官网（其余由用户自定义添加）
+            ('音色', '配音-剪映', '配音', 'https://www.capcut.cn/'),
         ]
         if seeds:
             conn.executemany(
@@ -101,6 +106,28 @@ def _row_to_dict(r):
     }
 
 
+def _seed_categories():
+    """首次启动（分类表为空）才落种子。用户重命名/新增/删除的分类不会复活。"""
+    conn = db.get_conn()
+    try:
+        count = conn.execute("SELECT COUNT(*) AS c FROM manju_categories").fetchone()["c"]
+        if count > 0:
+            return
+        for i, name in enumerate(CATEGORIES):
+            conn.execute(
+                "INSERT INTO manju_categories (name, sort_order, is_default) VALUES (?,?,1)",
+                (name, i * 10),
+            )
+        conn.commit()
+    finally:
+        conn.close()
+
+
+def _category_exists(conn, name):
+    """在已有 conn 内判断分类名是否存在（避免重复开连接）。"""
+    return conn.execute("SELECT 1 FROM manju_categories WHERE name=?", (name,)).fetchone() is not None
+
+
 # ---------------------------------------------------------------------------
 # 接口
 # ---------------------------------------------------------------------------
@@ -108,7 +135,16 @@ def _row_to_dict(r):
 def info():
     _ensure_table()
     _seed()
-    return {'ok': True, 'categories': CATEGORIES}
+    _seed_categories()
+    conn = db.get_conn()
+    try:
+        rows = conn.execute(
+            "SELECT id, name FROM manju_categories ORDER BY sort_order, id"
+        ).fetchall()
+        cats = [{'id': r['id'], 'name': r['name']} for r in rows]
+    finally:
+        conn.close()
+    return {'ok': True, 'categories': cats}
 
 
 @router.get('/sites')
@@ -118,7 +154,7 @@ def list_sites(category: str = ''):
     conn = db.get_conn()
     try:
         if category:
-            if category not in CATEGORIES:
+            if not _category_exists(conn, category):
                 raise HTTPException(400, '无效的分类')
             rows = conn.execute(
                 "SELECT * FROM manju_sites WHERE category=? ORDER BY sort_order, id",
@@ -143,12 +179,12 @@ class SiteIn(BaseModel):
 @router.post('/sites')
 def create_site(s: SiteIn):
     _ensure_table()
-    if s.category not in CATEGORIES:
-        raise HTTPException(400, '无效的分类')
-    if not s.name or not s.name.strip():
-        raise HTTPException(400, '名称不能为空')
     conn = db.get_conn()
     try:
+        if not _category_exists(conn, s.category):
+            raise HTTPException(400, '无效的分类')
+        if not s.name or not s.name.strip():
+            raise HTTPException(400, '名称不能为空')
         cur = conn.execute(
             "INSERT INTO manju_sites (category, name, tag, url, sort_order) "
             "VALUES (?,?,?,?, (SELECT COALESCE(MAX(sort_order),0)+10 FROM manju_sites WHERE category=?))",
@@ -178,7 +214,7 @@ def update_site(sid: int, s: SiteUpdate):
         cur = conn.execute("SELECT * FROM manju_sites WHERE id=?", (sid,)).fetchone()
         if not cur:
             raise HTTPException(404, '站点不存在')
-        if s.category is not None and s.category not in CATEGORIES:
+        if s.category is not None and not _category_exists(conn, s.category):
             raise HTTPException(400, '无效的分类')
         name = s.name if s.name is not None else cur['name']
         tag = s.tag if s.tag is not None else cur['tag']
@@ -210,6 +246,83 @@ def delete_site(sid: int):
         conn.close()
 
 
+# ---------------------------------------------------------------------------
+# 分类管理（重命名 / 新增 / 删除），分类名即 manju_sites.category 的引用值
+# ---------------------------------------------------------------------------
+class CatIn(BaseModel):
+    name: str = None
+    sort_order: int = None
+
+
+@router.post('/categories')
+def create_category(c: CatIn):
+    _ensure_table()
+    name = (c.name or '').strip()
+    if not name:
+        raise HTTPException(400, '分类名不能为空')
+    conn = db.get_conn()
+    try:
+        if _category_exists(conn, name):
+            raise HTTPException(400, '分类已存在')
+        so = c.sort_order if c.sort_order is not None else (
+            conn.execute("SELECT COALESCE(MAX(sort_order),0)+10 FROM manju_categories").fetchone()[0]
+        )
+        cur = conn.execute(
+            "INSERT INTO manju_categories (name, sort_order) VALUES (?,?)",
+            (name, so),
+        )
+        conn.commit()
+        return {'ok': True, 'id': cur.lastrowid}
+    finally:
+        conn.close()
+
+
+@router.put('/categories/{cid}')
+def update_category(cid: int, c: CatIn):
+    _ensure_table()
+    conn = db.get_conn()
+    try:
+        row = conn.execute("SELECT * FROM manju_categories WHERE id=?", (cid,)).fetchone()
+        if not row:
+            raise HTTPException(404, '分类不存在')
+        new_name = (c.name or '').strip() if c.name is not None else row['name']
+        if not new_name:
+            raise HTTPException(400, '分类名不能为空')
+        old_name = row['name']
+        if new_name != old_name:
+            if _category_exists(conn, new_name):
+                raise HTTPException(400, '分类名已存在')
+            # 级联更新：分类改名后，其下网站与已打开标签的 category 字符串一并改，避免数据"丢失"
+            conn.execute("UPDATE manju_sites SET category=? WHERE category=?", (new_name, old_name))
+            conn.execute("UPDATE manju_open_tabs SET category=? WHERE category=?", (new_name, old_name))
+        conn.execute(
+            "UPDATE manju_categories SET name=?, updated_at=? WHERE id=?",
+            (new_name, datetime.now().strftime('%Y-%m-%d %H:%M:%S'), cid),
+        )
+        conn.commit()
+        return {'ok': True}
+    finally:
+        conn.close()
+
+
+@router.delete('/categories/{cid}')
+def delete_category(cid: int):
+    _ensure_table()
+    conn = db.get_conn()
+    try:
+        row = conn.execute("SELECT * FROM manju_categories WHERE id=?", (cid,)).fetchone()
+        if not row:
+            raise HTTPException(404, '分类不存在')
+        cnt = conn.execute("SELECT COUNT(*) AS c FROM manju_sites WHERE category=?", (row['name'],)).fetchone()['c']
+        if cnt > 0:
+            raise HTTPException(400, f'该分类下还有 {cnt} 个网站，请先将这些网站改到其他分类或删除后再删除分类')
+        conn.execute("DELETE FROM manju_categories WHERE id=?", (cid,))
+        conn.commit()
+        return {'ok': True}
+    finally:
+        conn.close()
+
+
 @router.post('/reset-defaults')
 def reset_defaults():
     """恢复默认站点：仅补回当前缺失的默认项（不删用户自建、不重复插入已存在的）。"""
@@ -223,21 +336,15 @@ def reset_defaults():
         seeds = [
             ('去重', 'DeepSeek', 'AI对话', 'https://chat.deepseek.com/'),
             ('剧本', 'Kimi', 'AI对话', 'https://kimi.moonshot.cn/'),
-            ('资产', 'ChatGPT', 'AI对话', 'https://chat.openai.com/'),
+            ('资产', 'Kimi', 'AI对话', 'https://kimi.moonshot.cn/'),
             ('分镜', 'WorkBuddy', 'AI对话', 'https://www.workbuddy.cn/'),
-            ('生图', '椒图AI-人物', '人物', 'https://'),
-            ('生图', '椒图AI-场景', '场景', 'https://'),
-            ('生图', '椒图AI-道具', '道具', 'https://'),
-            ('生图', 'Flux art-人物', '人物', 'https://'),
-            ('生图', 'Flux art-场景', '场景', 'https://'),
-            ('生图', 'Flux art-道具', '道具', 'https://'),
+            ('生图', '椒图AI', '人物', 'https://jiaotu.top/studio?sessionId=7239559e-6900-4a01-92fd-490451c650d3'),
+            ('生图', 'Flux art', '通用', 'https://flux-art.ai/ai-image'),
             ('生视频', '即梦', '视频', 'https://jimeng.jianying.com'),
-            ('生视频', '小云雀', '视频', 'https://'),
+            ('生视频', '小云雀', '视频', 'https://xyq.jianying.com/home?tab_name=home'),
             ('生视频', 'Liblib', '视频', 'https://www.liblib.art'),
             ('生视频', '可灵', '视频', 'https://klingai.kuaishou.com'),
-            ('生视频', 'ComfyUI', '视频', 'http://127.0.0.1:8188'),
-            ('音色', '配音-剪映', '配音', 'https://'),
-            ('音色', '配音-TTS', 'TTS', 'https://'),
+            ('音色', '配音-剪映', '配音', 'https://www.capcut.cn/'),
         ]
         new = [s for s in seeds if (s[0], s[1]) not in existing]
         if new:

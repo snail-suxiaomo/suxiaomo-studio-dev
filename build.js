@@ -168,7 +168,7 @@ moveStaleWinUnpacked()
 runBuildGate()
 
 // 0.5 打包便携 Python：把 venv 依赖的 base Python 整目录拷进 backend/_python。
-// 这样打出来的 exe 在别人机器上也能跑，不再依赖开发者机器 C:\Users\snail\... 的个人路径。
+// 这样打出来的 exe 在别人机器上也能跑，不再依赖开发者机器 C:\Users\<用户名>\... 的个人路径。
 // 首次启动（见 desktop/main.js patchVenvForPortable）会把 venv/pyvenv.cfg 的 home 改写成本目录。
 function bundlePortablePython() {
   step('打包便携 Python 运行时')

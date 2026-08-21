@@ -787,6 +787,14 @@ def export_records(ids=None, scope=None):
             rows = conn.execute(
                 "SELECT * FROM prompt_library ORDER BY sort_order ASC, id ASC").fetchall()
         rows = [dict(r) for r in rows]
+        # 附件一次性批量取出，按 prompt_id 分组（避免循环内反复新建/关闭连接）
+        atts_by_pid = {}
+        if rows:
+            pids = [r['id'] for r in rows]
+            ph = ','.join('?' * len(pids))
+            for a in conn.execute(
+                f"SELECT * FROM prompt_attachments WHERE prompt_id IN ({ph})", pids).fetchall():
+                atts_by_pid.setdefault(a['prompt_id'], []).append(dict(a))
     finally:
         conn.close()
 
@@ -847,14 +855,8 @@ def export_records(ids=None, scope=None):
                             arc = f'{folder}/skills/{fp.relative_to(src_folder).as_posix()}'
                             z.write(str(fp), arc, compress_type=zipfile.ZIP_STORED)
             meta['_skill_folder'] = skill_folder
-            # 附件（skills 压缩包）：打进 attachments/，meta 记文件名
-            atts = []
-            _c = db.get_conn()
-            try:
-                atts = [dict(x) for x in _c.execute(
-                    "SELECT * FROM prompt_attachments WHERE prompt_id=?", (r.get('id'),)).fetchall()]
-            finally:
-                _c.close()
+            # 附件（skills 压缩包）：打进 attachments/，meta 记文件名（已批量预取，直接按 pid 取）
+            atts = atts_by_pid.get(r.get('id'), [])
             att_names = []
             for a in atts:
                 src = (db.DATA_DIR / a['filepath']).resolve()

@@ -17,9 +17,9 @@
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
           {{ manageMode ? '退出管理' : '管理' }}
         </button>
-        <button class="btn ghost" @click="triggerImportText">
+        <button class="btn ghost" @click="triggerImportText" title="从 .txt/.md/.json/.docx 等外部文件提取提示词，作为【新增】提示词收藏进来（不会覆盖现有数据）">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 3v12M7 8l5 5 5-5M5 21h14"/></svg>
-          导入外部提示词
+          收藏外部提示词
         </button>
         <button class="btn primary" @click="openCreate">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14" /></svg>
@@ -77,9 +77,9 @@
       <button class="btn ghost sm" @click="selectAll">全选</button>
       <button class="btn ghost sm" @click="clearSelect">取消全选</button>
       <input ref="importInput" id="pl-import-input" type="file" accept=".zip" hidden @change="onImportPicked" />
-      <label for="pl-import-input" class="btn ghost sm">
+      <label for="pl-import-input" class="btn ghost sm" title="导入本系统导出的 .zip 备份包，用于【恢复/合并】提示词与其图片（需先通过「导出选中」导出过）">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 3v12M7 8l5 5 5-5M5 21h14"/></svg>
-        导入
+        恢复备份
       </label>
       <button class="btn ghost sm" @click="exportSelected" :disabled="!selectedIds().length || exporting">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 3v12M7 8l5 5 5-5M5 21h14"/></svg>
@@ -372,6 +372,17 @@
       </div>
     </transition>
 
+    <!-- 导入中遮罩：导入需解包并写入提示词正文与图片，耗时随图片数量增加，提示用户耐心等待、勿重复点击 -->
+    <transition name="fade">
+      <div v-if="importingZip" class="export-mask">
+        <div class="export-box">
+          <div class="spinner"></div>
+          <div class="export-text">正在导入备份，请耐心等待…</div>
+          <div class="export-sub">导入需解包并写入每条提示词的正文、图片等文件，耗时随图片数量增加，请勿重复点击，请耐心等待…</div>
+        </div>
+      </div>
+    </transition>
+
     <!-- 导入外部提示词：预览 + 拆分策略 + 草稿 + 批量新建 -->
     <transition name="fade">
       <div v-if="importTextOpen" class="modal-mask" @click.self="closeImportText">
@@ -657,6 +668,7 @@ function clearSelect() { selected.value = new Set() }
 function toggleManage() { manageMode.value = !manageMode.value; if (!manageMode.value) selected.value = new Set() }
 const importInput = ref(null)
 const importMsg = ref('')
+const importingZip = ref(false)
 
 // ===== 导入外部提示词（txt/md/json/docx → 预览 → 拆分 → 草稿 → 批量新建）=====
 const IMPORT_STRATEGIES = [
@@ -1515,6 +1527,8 @@ async function exportSelected() {
 async function onImportPicked(e) {
   const f = e.target.files && e.target.files[0]
   if (!f) return
+  if (importingZip.value) return
+  importingZip.value = true
   const fd = new FormData()
   fd.append('file', f)
   try {
@@ -1525,6 +1539,7 @@ async function onImportPicked(e) {
   } catch (err) {
     showToast(err.message || '导入失败')
   } finally {
+    importingZip.value = false
     e.target.value = ''
   }
 }

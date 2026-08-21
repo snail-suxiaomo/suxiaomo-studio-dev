@@ -152,7 +152,8 @@ button:hover { transform: translateY(-1px) !important; box-shadow: var(--shadow-
 button:disabled { opacity: .5 !important; cursor: not-allowed !important; transform: none !important; }
 
 /* 爆款收集内嵌浏览器工具栏：方形图标按钮，豁免上面的全局渐变 */
-button.bw-icon {
+button.bw-icon,
+button.bw-ico {
   width: 30px !important;
   height: 30px !important;
   padding: 0 !important;
@@ -168,8 +169,10 @@ button.bw-icon {
   justify-content: center !important;
   transform: none !important;
 }
-button.bw-icon:hover { background: #eef1fb !important; color: #ff3d63 !important; border-color: #ffb8c8 !important; transform: none !important; box-shadow: none !important; }
-button.bw-icon svg { display: block !important; pointer-events: none !important; }
+button.bw-icon:hover,
+button.bw-ico:hover { background: #eef1fb !important; color: #ff3d63 !important; border-color: #ffb8c8 !important; transform: none !important; box-shadow: none !important; }
+button.bw-icon svg,
+button.bw-ico svg { display: block !important; pointer-events: none !important; }
 
 /* 爆款收集浏览器底部当前URL栏的小按钮：豁免全局大按钮 */
 .bw-actions .btn {

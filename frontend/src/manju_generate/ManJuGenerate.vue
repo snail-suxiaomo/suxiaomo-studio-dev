@@ -11,8 +11,17 @@
           :style="subBtnStyle(sub.key)"
           @click="selectSub(sub.key)"
         >
-          <span class="sub-emoji">{{ subEmoji[sub.key] }}</span>
+          <span class="sub-emoji">{{ subEmojiOf(sub.key) }}</span>
           <span class="sub-label">{{ sub.label }}</span>
+        </button>
+        <button
+          v-if="manageMode"
+          class="sub-btn cat-manage-btn"
+          title="重命名 / 新增 / 删除分类"
+          @click="openCatManager()"
+        >
+          <span class="sub-emoji">⚙️</span>
+          <span class="sub-label">分类</span>
         </button>
       </div>
       <div class="sub-bar-right">
@@ -158,7 +167,7 @@
         <h3 class="modal-title">{{ editor.id ? '编辑网站' : '添加网站' }}</h3>
         <label class="modal-label">分类</label>
         <select v-model="editor.category" class="modal-input">
-          <option v-for="c in categories" :key="c" :value="c">{{ c }}</option>
+          <option v-for="c in categoriesList" :key="c.id" :value="c.name">{{ c.name }}</option>
         </select>
         <label class="modal-label">名称（如 椒图AI-人物 / 即梦）</label>
         <input v-model="editor.name" class="modal-input" placeholder="名称" />
@@ -192,30 +201,63 @@
         </div>
       </div>
     </div>
+
+    <!-- 分类管理弹窗：重命名 / 新增 / 删除分类 -->
+    <div v-if="showCatManager" class="modal-mask" @click.self="showCatManager = false">
+      <div class="modal">
+        <h3 class="modal-title">管理分类</h3>
+        <div class="cat-list">
+          <div v-for="c in categoriesList" :key="c.id" class="cat-row">
+            <span class="cat-dot" :style="{ background: catColor(c.name) }"></span>
+            <input
+              class="modal-input cat-input"
+              v-model="catEdit[c.name]"
+              @keyup.enter="saveCatName(c.name)"
+              @keyup.esc="catEdit[c.name] = c.name"
+              placeholder="分类名"
+            />
+            <button
+              class="op-mini success"
+              :disabled="!catEdit[c.name] || catEdit[c.name].trim() === c.name"
+              @click="saveCatName(c.name)"
+              title="保存分类名"
+            >✓</button>
+            <button
+              class="op-mini"
+              :disabled="catEdit[c.name] === c.name"
+              @click="catEdit[c.name] = c.name"
+              title="取消修改"
+            >↺</button>
+            <button class="op-mini danger" @click="deleteCat(c.name)" title="删除分类">🗑</button>
+          </div>
+        </div>
+        <div class="cat-add">
+          <input class="modal-input" v-model="newCatName" placeholder="新分类名" @keyup.enter="addCat()" />
+          <button class="op-btn primary" @click="addCat()">+ 新增</button>
+        </div>
+        <p class="cat-tip">提示：重命名 / 删除非空分类会同步影响该分类下的网站，请先处理其下网站。</p>
+        <div class="modal-ops">
+          <button class="op-btn" @click="showCatManager = false">关闭</button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 
-// 8 个子功能（全部走左侧网站列表 + 右侧 webview）
-const subs = [
-  { key: '去重', label: '去重' },
-  { key: '剧本', label: '剧本' },
-  { key: '资产', label: '资产' },
-  { key: '分镜', label: '分镜' },
-  { key: '生图', label: '生图' },
-  { key: '音色', label: '音色' },
-  { key: '生视频', label: '生视频' },
-  { key: '其他', label: '其他' },
-]
+// 子功能分类：从后端 /info 接口动态获取（支持重命名/新增/删除）
+const infoData = ref({ categories: [] })
+const categoriesList = computed(() => infoData.value.categories || [])
+const subs = computed(() => categoriesList.value.map((c) => ({ key: c.name, label: c.name })))
 const subEmoji = {
   '去重': '🧹', '剧本': '🎭', '资产': '🎨', '分镜': '🎞️',
   '生图': '🖼️', '音色': '🎵', '生视频': '🎬', '其他': '📂'
 }
-const categories = ['去重', '剧本', '资产', '分镜', '生图', '音色', '生视频', '其他']
+function subEmojiOf(key) { return subEmoji[key] || '📂' }
 
-// 分类 / 标签配色
+// 分类 / 标签配色（未知分类按名字哈希稳定分配一个颜色，保证可辨识）
 const CAT_COLORS = {
   '去重': '#7b5cff', '剧本': '#e0392f', '资产': '#1f9d55', '分镜': '#5b8def',
   '生图': '#7b5cff', '音色': '#1f9d55', '生视频': '#ff7a3a', '其他': '#5b8def'
@@ -224,7 +266,13 @@ const TAG_COLORS = {
   '人物': '#ff7a3a', '场景': '#1f9d55', '道具': '#7b5cff',
   '配音': '#e0392f', 'TTS': '#5b8def'
 }
-function catColor(c) { return CAT_COLORS[c] || '#7b5cff' }
+function hashColor(str) {
+  let h = 0
+  for (let i = 0; i < (str || '').length; i++) h = (h * 31 + str.charCodeAt(i)) >>> 0
+  const hue = h % 360
+  return `hsl(${hue}, 62%, 52%)`
+}
+function catColor(c) { return CAT_COLORS[c] || hashColor(c) }
 function tagColor(t) { return TAG_COLORS[t] || '#8a8f99' }
 
 // 子功能按钮 inline style：active 用分类色，绕过任何 CSS 缓存
@@ -249,7 +297,81 @@ function subBtnStyle(key) {
   }
 }
 
-const activeSub = ref('生图')
+const activeSub = ref('')
+
+// 从后端拉取分类（含 id），替代原硬编码常量
+async function loadInfo() {
+  try {
+    const res = await fetch('/api/manju-generate/info')
+    const data = await res.json()
+    infoData.value = data
+    if (!categoriesList.value.some((c) => c.name === activeSub.value)) {
+      activeSub.value = categoriesList.value.length ? categoriesList.value[0].name : ''
+    }
+  } catch (_) { /* 接口异常时保持空，降级为全部网站 */ }
+}
+function catIdOf(name) {
+  const f = categoriesList.value.find((c) => c.name === name)
+  return f ? f.id : null
+}
+
+// 分类管理（重命名 / 新增 / 删除）
+const showCatManager = ref(false)
+const catEdit = ref({})
+const newCatName = ref('')
+function openCatManager() {
+  const e = {}
+  categoriesList.value.forEach((c) => { e[c.name] = c.name })
+  catEdit.value = e
+  showCatManager.value = true
+}
+async function afterCatChange() {
+  await loadInfo()
+  await loadSites()
+}
+async function saveCatName(oldName) {
+  const newName = (catEdit.value[oldName] || '').trim()
+  if (!newName) { showToast('分类名不能为空', 'warning'); return }
+  if (newName === oldName) return
+  const id = catIdOf(oldName)
+  if (!id) return
+  try {
+    const res = await fetch(`/api/manju-generate/categories/${id}`, {
+      method: 'PUT', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: newName }),
+    })
+    const data = await res.json()
+    if (!data.ok) { showToast(data.detail || '重命名失败', 'error'); return }
+  } catch (_) { showToast('重命名失败', 'error'); return }
+  if (activeSub.value === oldName) activeSub.value = newName
+  await afterCatChange()
+}
+async function deleteCat(name) {
+  const id = catIdOf(name)
+  if (!id) return
+  const ok = await showConfirm(`确认删除分类「${name}」？\n（该分类下还有网站时会被拦截，请先将这些网站改到其他分类或删除）`)
+  if (!ok) return
+  try {
+    const res = await fetch(`/api/manju-generate/categories/${id}`, { method: 'DELETE' })
+    const data = await res.json()
+    if (!data.ok) { showToast(data.detail || '删除失败', 'error'); return }
+  } catch (_) { showToast('删除失败', 'error'); return }
+  await afterCatChange()
+}
+async function addCat() {
+  const name = newCatName.value.trim()
+  if (!name) { showToast('分类名不能为空', 'warning'); return }
+  try {
+    const res = await fetch('/api/manju-generate/categories', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name }),
+    })
+    const data = await res.json()
+    if (!data.ok) { showToast(data.detail || '新增失败', 'error'); return }
+  } catch (_) { showToast('新增失败', 'error'); return }
+  newCatName.value = ''
+  await afterCatChange()
+}
 
 // 管理开关：开启时每行显示编辑/删除（替换 tag 位置）
 const manageMode = ref(false)
@@ -505,8 +627,9 @@ async function resetDefaults() {
   loadSites()
 }
 
-onMounted(() => {
+onMounted(async () => {
   loadSidebarState()
+  await loadInfo()
   loadTabs()
   loadSites()
 })
@@ -905,6 +1028,30 @@ onUnmounted(() => {
 .op-btn:hover { border-color: var(--sx-accent); color: var(--sx-accent); }
 .op-btn.primary { background: linear-gradient(135deg, #ff7a3a, #7b5cff); color: #fff; border-color: transparent; font-weight: 600; }
 .op-btn.primary:hover { filter: brightness(1.05); }
+
+/* ===== 分类管理弹窗 ===== */
+.cat-list { display: flex; flex-direction: column; gap: 8px; max-height: 46vh; overflow-y: auto; padding: 2px; }
+.cat-row { display: flex; align-items: center; gap: 8px; }
+.cat-dot { flex-shrink: 0; width: 10px; height: 10px; border-radius: 50%; }
+.cat-input { flex: 1; }
+.cat-add { display: flex; gap: 8px; margin-top: 14px; }
+.cat-add .modal-input { flex: 1; }
+.cat-tip { margin: 12px 0 0; font-size: 12px; line-height: 1.6; color: var(--sx-text-soft); }
+.op-mini.success { background: #1f9d55; box-shadow: 0 2px 6px rgba(31, 157, 85, .25); }
+.op-mini:disabled { opacity: .45; cursor: not-allowed; filter: none !important; }
+
+/* 左侧管理分类按钮：与普通分类同高，但用虚线边框+灰调背景，明显区分 */
+.cat-manage-btn {
+  border: 1.5px dashed var(--sx-border) !important;
+  background: var(--sx-bg-surface) !important;
+  color: var(--sx-text) !important;
+  box-shadow: none !important;
+}
+.cat-manage-btn:hover {
+  border-color: var(--sx-accent) !important;
+  color: var(--sx-accent) !important;
+  background: rgba(123, 92, 255, .06) !important;
+}
 
 /* ===== 轻提示 ===== */
 .toast {
